@@ -1,0 +1,106 @@
+*,
+*::after,
+*::before {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+ 
+  --font-size: 10px;
+  --font-clr: ;
+    
+  --primary-bg: hsl(240, 1.3%, 56.3%);
+
+  --clr-board: hsl(0, 0%, 82.4%); 
+  --clr-board-border: hsl(240, 1%, 79.4%);
+  --clr-cross: hsl(228.3, 95.3%, 83.1%);
+  --clr-cross-border: hsl(230.1, 69.5%, 79.4%);
+  --clr-zero: hsl(49.6, 98.2%, 78%);
+  --clr-zero-border: hsl(51.8, 78.6%, 83.5%);
+}
+
+
+html {
+  font-size: var(--font-size);
+}
+
+body {
+  background-color: hsl(240, 1.3%, 56.3%);
+}
+
+
+/* utility CSS class */
+
+.grid {
+  display: grid;
+}
+
+/* site layout */
+
+#wrapper {
+  min-height: 100vh;
+  grid-template: "header" 1fr 
+                 "board" 5fr 
+                 "footer" 0.5fr 
+                 / 1fr;
+  gap: 1rem;
+}
+
+header, 
+main,
+footer {
+  background-color: white;
+}
+
+
+/* header */
+
+header {
+  place-items: center;
+}
+
+
+/* tic tac toe board  */
+ 
+main {
+  border: 4px solid var(--clr-zero-border);
+  grid-area: board;
+}
+
+.board-grid {
+  grid-template: repeat(3, 1fr) / repeat(3, 1fr);
+  block-size: 50%;
+  inline-size: 50%;
+}
+
+:is(.top, .left, .bottom, .right) {
+  border: 1px solid black;
+}
+
+.no-border {
+  border: none;
+}
+
+.top {
+  border-top: none;
+}
+
+.bottom {
+  border-bottom: none;
+}
+
+.right {
+  border-right: none;
+}
+
+.left {
+  border-left: none;
+}
+
+/* Footer */
+
+footer {
+  place-items: center;
+}
