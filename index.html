@@ -13,22 +13,63 @@
     <header class="grid">
       <h1>Tic Tac Toe</h1>
     </header>
+    
     <main class="grid">
-      <div class="board-grid grid">
-        <div class="01 top left"></div>
-        <div class="02 top"></div>
-        <div class="03 top right"></div>
-        <div class="11 left"></div>
-        <div class="12"></div>
-        <div class="13 right"></div>
-        <div class="21 left bottom"></div>
-        <div class="22 bottom"></div>
-        <div class="23 bottom right"></div>
+
+      <div class="user-details">
+        <h2>Hello there, <span>tic-tac-toker!</span></h2>
+        <h2>Welcome to the tic-tac-toe world!</h2>
+        <form action="#" class="user-modal">
+          <label for="user-name">Enter your name: </label>
+          <input type="text" id="user-name" name="user-name">
+
+          <label for="user-mark">Enter your mark: </label>
+          <select id="user-mark" name="user-mark">
+            <option value="X">X</option>
+            <option value="O">O</option>
+          </select>
+
+          <label for="turn-choice">Want to mark first?</label>
+          <select id="turn-choice" name="turn-choice">
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+
+          <button type="button" id="user-submit">Submit</button>
+        </form>
+      </div>
+
+      <div class="player2-modal hide">
+        
+        <p>Who do you want to play against?</p>
+        <div class="human">Human</div>
+        <div class="bot">Bot</div>
+
+        <form action="#" class="player2-form hide">
+          <label for="player2-name">Enter name of Human: </label>
+          <input type="text" id="player2-name" name="player2-name">
+          <button type="button" class="player2-submit">Submit</button>
+        </form>       
+      </div>
+
+      <div class="board-grid grid hide">
+        <div class="00"></div>
+        <div class="01 left-right-border"></div>
+        <div class="02"></div>
+        <div class="10 top-bottom-border"></div>
+        <div class="11 all-border"></div>
+        <div class="12 top-bottom-border"></div>
+        <div class="20"></div>
+        <div class="21 left-right-border"></div>
+        <div class="22"></div>
       </div>  
+    
     </main>
+    
     <footer class="grid">
       <p>Pradeep Saini</p>
     </footer>
   </div>
+  <script src="script.js"></script>
 </body>
 </html>
