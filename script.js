@@ -3,12 +3,12 @@
 const domElements = (() => {
   const boardCells = document.querySelector(".board-grid");
   
-  const userDetailsModal = document.querySelector(".user-details");
-  const userName = document.getElementById("user-name");
-  const userMark = document.getElementById("user-mark");
-  const userTurn = document.getElementById("turn-choice");
-  const userFormSubmit = document.getElementById("user-submit");
-  const user = {userDetailsModal, userFormSubmit, userName, userMark, userTurn};
+  const player1DetailsModal = document.querySelector(".player1-details");
+  const player1Name = document.getElementById("player1-name");
+  const player1Mark = document.getElementById("player1-mark");
+  const player1Turn = document.getElementById("turn-choice");
+  const player1FormSubmit = document.getElementById("player1-submit");
+  const player1 = {player1DetailsModal, player1FormSubmit, player1Name, player1Mark, player1Turn};
  
   const player2Modal = document.querySelector(".player2-modal");
   const player2Human = document.querySelector(".human");
@@ -18,12 +18,19 @@ const domElements = (() => {
   const player2NameSubmit = document.querySelector(".player2-submit");
   const player2 = { player2Modal, player2Human, player2Bot, player2Form, player2Name, player2NameSubmit };
 
-  return { boardCells, user, player2};
+
+  const gameStats = document.querySelector(".game-stats");
+  const player1Stats = document.querySelector(".player1-stats");
+  const player2Stats = document.querySelector(".player2-stats");
+
+  const stats = {gameStats, player1Stats, player2Stats};
+
+  return { boardCells, player1, player2, stats};
 })();
 
 
-const Player = function(name, marker) {
-  return { name, marker };            
+const Player = function(name, marker, gamesWon=0) {
+  return { name, marker, gamesWon };            
 }
 
 
@@ -83,9 +90,26 @@ const gameBoard = (() => {
 
 
 const gameController = (() => {
-  
+    
   const playersPlaying = {}; 
   let player1Turn = true;
+
+  
+  // display player name, marker, score on the page
+  const displayPlayer = (player1Div, player2Div) => {
+    const player1 = playersPlaying.player1;
+    const player2 = playersPlaying.player2;
+
+    player1Div.children[0].textContent = `${player1.name} (${player1.marker})`;
+    player1Div.children[1].textContent = `${player1.gamesWon}`;
+
+    player2Div.children[0].textContent = `${player2.name} (${player2.marker})`;
+    player2Div.children[1].textContent = `${player2.gamesWon}`;
+  }
+  
+  const updateScore = (player)  => {
+    player.gamesWon += 1;  
+  }
 
   // create the player and push to players object.
   const createPlayers = function(name, marker="null", turn="null") {
@@ -140,44 +164,59 @@ const gameController = (() => {
 
       if (winnerMarker != null) {
         resetBoard(e.parentNode);
-      } 
-   }
+        const { stats } = domElements;
+        const players = Object.values(playersPlaying);
+  
+        for (let player of players) {
+          if (player.marker === winnerMarker) {
+            updateScore(player);
+            displayPlayer(stats.player1Stats, stats.player2Stats);
+            break;
+          };
+        };
+      }; 
+    };
   };
 
-  return { makeMove, createPlayers };
+  return { makeMove, createPlayers, displayPlayer };
 
 })();
 
 
 const domInteractions = (() => {
   
-  const { boardCells, user, player2 } = domElements;
-  const { makeMove, createPlayers } = gameController;
+  const { boardCells, player1, player2, stats } = domElements;
+  const { makeMove, createPlayers, displayPlayer } = gameController;
  
-  const { userDetailsModal, userFormSubmit, userName, userMark, userTurn } = {...user};
+  const { player1DetailsModal, player1FormSubmit, player1Name, player1Mark, player1Turn } = {...player1};
+  const { player2Modal, player2Form, player2NameSubmit, player2Bot, player2Name } = {...player2};
+  const {gameStats, player1Stats, player2Stats} = {...stats};
 
-  const { player2Modal, player2Form, player2NameSubmit, player2Bot, player2Name } = {...player2}
-
-  user.userFormSubmit.addEventListener("click", () => {
-    createPlayers(userName.value, userMark.value, userTurn.value);
-    user.userDetailsModal.classList.add("hide");
-    player2Modal.classList.remove("hide");
-  })
+  const hidePlayer2Form = () => {
+    player2Modal.classList.toggle("hide");
+    boardCells.classList.toggle("hide");
+    gameStats.classList.toggle("hide");
+    displayPlayer(player1Stats, player2Stats);
+  };
+   
+  player1FormSubmit.addEventListener("click", () => {
+    createPlayers(player1Name.value, player1Mark.value, player1Turn.value);
+    player1DetailsModal.classList.add("hide");
+    player2Modal.classList.toggle("hide");
+  });
   
   player2.player2Human.addEventListener("click", () => {
-    player2Form.classList.remove("hide");
+    player2Form.classList.toggle("hide");
   });
 
   player2.player2Bot.addEventListener("click", () => {
-    player2Modal.classList.add("hide");    
     createPlayers("AIBot");
-    boardCells.classList.remove("hide");
+    hidePlayer2Form();
   });
 
   player2NameSubmit.addEventListener("click", () => {
     createPlayers(player2Name.value);
-    player2Modal.classList.add("hide");
-    boardCells.classList.remove("hide");
+    hidePlayer2Form();
   });
 
   
