@@ -8,7 +8,7 @@ const domElements = (() => {
   const userMark = document.getElementById("user-mark");
   const userTurn = document.getElementById("turn-choice");
   const userFormSubmit = document.getElementById("user-submit");
-  const userPlayer1 = {userDetailsModal, userFormSubmit, userName, userMark, userTurn};
+  const user = {userDetailsModal, userFormSubmit, userName, userMark, userTurn};
  
   const player2Modal = document.querySelector(".player2-modal");
   const player2Human = document.querySelector(".human");
@@ -18,7 +18,7 @@ const domElements = (() => {
   const player2NameSubmit = document.querySelector(".player2-submit");
   const player2 = { player2Modal, player2Human, player2Bot, player2Form, player2Name, player2NameSubmit };
 
-  return { boardCells, userPlayer1, player2};
+  return { boardCells, user, player2};
 })();
 
 
@@ -49,7 +49,6 @@ const gameBoard = (() => {
   };
 
   const didPlayerWon = (marker, rowPos, colPos) => {
-    console.log(marker, rowPos, colPos);
     let rowMarks = 0;
     let colMarks = 0;
     let diagonalMarks = 0;
@@ -72,7 +71,9 @@ const gameBoard = (() => {
     
     if (rowMarks === 3 || colMarks === 3 || diagonalMarks === 3 || reverseDiagonalMarks === 3) {
       markerArrayReset();
-      console.log("won")
+      return marker;
+    } else {
+      return null;
     };
   };  
   
@@ -98,57 +99,68 @@ const gameController = (() => {
       const player2 = Player(name, playerMark);
       playersPlaying["player2"] = player2;
     }
-  }
- 
-  const updatePlayerMark = (boardCell, rowPos, colPos, playerMoved) => {
-    const {name, marker} = {...playerMoved};
+  };
+
+  const resetBoard = (board) => {
+    board.childNodes.forEach((cell, index) => {
+      (index % 2 === 1) ? cell.textContent = "" : null;
+    })
+  };
+
+  const updatePlayerMark = (boardCell, rowPos, colPos, marker) => {
 
     boardCell.textContent = marker;
-    gameBoard.updateArray(rowPos, colPos, marker); 
-    gameBoard.didPlayerWon(marker, +rowPos, +colPos);
-  }
+  };
 
   const isCellMarked = function(boardCell) {
     return (boardCell.textContent != "") ? false : true;
-  }
+  };
 
   const whichPlayerTurn = () => {
     const playerMove = (player1Turn) ? playersPlaying.player1 : playersPlaying.player2;
     player1Turn = !player1Turn;
 
     return playerMove;
-  } 
+  }; 
 
   const makeMove = () => {
-    const boardCell = event.target.classList[0];
+    const e = event.target;
+    const boardCell = e.classList[0];
     const [rowPos, colPos] = [...boardCell.split("")];
 
-    const cellMarked = isCellMarked(event.target);
+    const cellMarked = isCellMarked(e);
 
     if (cellMarked) {
       const playerMoved = whichPlayerTurn();
+      const {name, marker} = {...playerMoved};
 
-      updatePlayerMark(event.target, rowPos, colPos, playerMoved);
+      updatePlayerMark(e, rowPos, colPos, marker);
+      gameBoard.updateArray(rowPos, colPos, marker); 
+      const winnerMarker = gameBoard.didPlayerWon(marker, +rowPos, +colPos);
+
+      if (winnerMarker != null) {
+        resetBoard(e.parentNode);
+      } 
    }
   };
 
-  return { makeMove, createPlayers }
+  return { makeMove, createPlayers };
 
 })();
 
 
 const domInteractions = (() => {
   
-  const { boardCells, userPlayer1, player2 } = domElements;
+  const { boardCells, user, player2 } = domElements;
   const { makeMove, createPlayers } = gameController;
  
-  const { userDetailsModal, userFormSubmit, userName, userMark, userTurn } = {...userPlayer1};
+  const { userDetailsModal, userFormSubmit, userName, userMark, userTurn } = {...user};
 
   const { player2Modal, player2Form, player2NameSubmit, player2Bot, player2Name } = {...player2}
 
-  userPlayer1.userFormSubmit.addEventListener("click", () => {
+  user.userFormSubmit.addEventListener("click", () => {
     createPlayers(userName.value, userMark.value, userTurn.value);
-    userPlayer1.userDetailsModal.classList.add("hide");
+    user.userDetailsModal.classList.add("hide");
     player2Modal.classList.remove("hide");
   })
   
