@@ -22,55 +22,114 @@ const domElements = (() => {
 })();
 
 
-const Player = function(name, marker, playerTurn) {
-  const updateTurnStatus = function() {
-    this.playerTurn = !this.playerTurn;
-  }
-  return { name, marker, playerTurn, updateTurnStatus };            
+const Player = function(name, marker) {
+  return { name, marker };            
 }
 
 
 const gameBoard = (() => {
-  const array = [[1, 0, 1],
-                 [0, 1, 0],
-                 [1, 0, 1]];
+  
+  const markerArray = [["", "", ""],
+                 ["", "", ""],
+                 ["", "", ""]];
 
-  const isCellMarked = function(boardCell) {
-    return (boardCell.textContent != "") ? false : true;
-  }
+  let totalMarker = 0;
 
-  const updatePlayerMark = function(boardCell, marker) {
-    const marked = isCellMarked(boardCell);
-    if (marked) boardCell.textContent = marker; 
-  }
+  const markerArrayReset = () => {
+    markerArray.forEach((subArray, index) => {
+      subArray.forEach((item, i) => {
+        markerArray[index][i] = "";
+      })
+    })
+  };
 
-  return { updatePlayerMark };
+  const updateArray = (rowIndex, columnIndex, playerMarker) => {
+    markerArray[rowIndex][columnIndex] = playerMarker;
+    totalMarker += 1;
+  };
+
+  const didPlayerWon = (marker, rowPos, colPos) => {
+    console.log(marker, rowPos, colPos);
+    let rowMarks = 0;
+    let colMarks = 0;
+    let diagonalMarks = 0;
+    let reverseDiagonalMarks = 0;
+
+    for (let i= 0; i< 3; i+= 1) {
+      
+      if (markerArray[rowPos][i] === marker) colMarks += 1;
+
+      if (markerArray[i][colPos] === marker) rowMarks += 1;
+
+      if (rowPos === colPos) {
+        if (markerArray[i][i] === marker) diagonalMarks += 1;
+      }
+
+      if (rowPos + colPos === 2) {
+        if (markerArray[i][(2) - i] === marker) reverseDiagonalMarks += 1;
+      }
+    };
+    
+    if (rowMarks === 3 || colMarks === 3 || diagonalMarks === 3 || reverseDiagonalMarks === 3) {
+      markerArrayReset();
+      console.log("won")
+    };
+  };  
+  
+  
+  return { updateArray, didPlayerWon };
 })();
 
 
 const gameController = (() => {
   
-  const players = {}; 
-  
-  const createPlayers = function(name, marker="null", turn="null") {
-    if (Object.keys(players).length === 0) {
-      playerTurn = (turn === "yes") ? true : false;
-      const player1 = Player(name, marker, playerTurn);
-      players["player1"] = player1;
-    } else {
-      playerTurn = !players.player1.playerTurn;
-      playerMark = (players.player1.marker === "X") ? "O" : "X";
-      const player2 = Player(name, playerMark, playerTurn);
-      players["player2"] = player2;
-    }
+  const playersPlaying = {}; 
+  let player1Turn = true;
 
-    console.log(players)
+  // create the player and push to players object.
+  const createPlayers = function(name, marker="null", turn="null") {
+    if (Object.keys(playersPlaying).length === 0) {
+      player1Turn = (turn === "yes") ? true : false;
+      const player1 = Player(name, marker);
+      playersPlaying["player1"] = player1;
+    } else {
+      playerTurn = !playersPlaying.player1.playerTurn;
+      playerMark = (playersPlaying.player1.marker === "X") ? "O" : "X";
+      const player2 = Player(name, playerMark);
+      playersPlaying["player2"] = player2;
+    }
   }
+ 
+  const updatePlayerMark = (boardCell, rowPos, colPos, playerMoved) => {
+    const {name, marker} = {...playerMoved};
+
+    boardCell.textContent = marker;
+    gameBoard.updateArray(rowPos, colPos, marker); 
+    gameBoard.didPlayerWon(marker, +rowPos, +colPos);
+  }
+
+  const isCellMarked = function(boardCell) {
+    return (boardCell.textContent != "") ? false : true;
+  }
+
+  const whichPlayerTurn = () => {
+    const playerMove = (player1Turn) ? playersPlaying.player1 : playersPlaying.player2;
+    player1Turn = !player1Turn;
+
+    return playerMove;
+  } 
 
   const makeMove = () => {
     const boardCell = event.target.classList[0];
-    const [cellPositionX, cellPositionY] = [...boardCell.split("")];
-    gameBoard.updatePlayerMark(event.target, [cellPositionX, cellPositionY]);
+    const [rowPos, colPos] = [...boardCell.split("")];
+
+    const cellMarked = isCellMarked(event.target);
+
+    if (cellMarked) {
+      const playerMoved = whichPlayerTurn();
+
+      updatePlayerMark(event.target, rowPos, colPos, playerMoved);
+   }
   };
 
   return { makeMove, createPlayers }
@@ -84,6 +143,7 @@ const domInteractions = (() => {
   const { makeMove, createPlayers } = gameController;
  
   const { userDetailsModal, userFormSubmit, userName, userMark, userTurn } = {...userPlayer1};
+
   const { player2Modal, player2Form, player2NameSubmit, player2Bot, player2Name } = {...player2}
 
   userPlayer1.userFormSubmit.addEventListener("click", () => {
