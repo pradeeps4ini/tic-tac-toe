@@ -47,7 +47,9 @@ const gameBoard = (() => {
       subArray.forEach((item, i) => {
         markerArray[index][i] = "";
       })
-    })
+    });
+
+    totalMarker = 0;
   };
 
   const updateArray = (rowIndex, columnIndex, playerMarker) => {
@@ -60,27 +62,32 @@ const gameBoard = (() => {
     let colMarks = 0;
     let diagonalMarks = 0;
     let reverseDiagonalMarks = 0;
-
-    for (let i= 0; i< 3; i+= 1) {
-      
-      if (markerArray[rowPos][i] === marker) colMarks += 1;
-
-      if (markerArray[i][colPos] === marker) rowMarks += 1;
-
-      if (rowPos === colPos) {
-        if (markerArray[i][i] === marker) diagonalMarks += 1;
-      }
-
-      if (rowPos + colPos === 2) {
-        if (markerArray[i][(2) - i] === marker) reverseDiagonalMarks += 1;
-      }
-    };
     
-    if (rowMarks === 3 || colMarks === 3 || diagonalMarks === 3 || reverseDiagonalMarks === 3) {
-      markerArrayReset();
-      return marker;
-    } else {
-      return null;
+    if (totalMarker > 4) {
+      for (let i= 0; i< 3; i+= 1) {
+      
+        if (markerArray[rowPos][i] === marker) colMarks += 1;
+
+        if (markerArray[i][colPos] === marker) rowMarks += 1;
+
+        if (rowPos === colPos) {
+          if (markerArray[i][i] === marker) diagonalMarks += 1;
+        }
+
+        if (rowPos + colPos === 2) {
+          if (markerArray[i][(2) - i] === marker) reverseDiagonalMarks += 1;
+        }
+      };
+    
+      if (rowMarks === 3 || colMarks === 3 || diagonalMarks === 3 || reverseDiagonalMarks === 3) {
+        markerArrayReset();
+        return marker;
+      } else if (totalMarker === 9) {
+        markerArrayReset();
+        return "Draw";
+      } else {
+        return null;
+      };
     };
   };  
   
@@ -106,12 +113,26 @@ const gameController = (() => {
     player2Div.children[0].textContent = `${player2.name} (${player2.marker})`;
     player2Div.children[1].textContent = `${player2.gamesWon}`;
   }
-  
+
+
   const updateScore = (player)  => {
     player.gamesWon += 1;  
   }
 
-  // create the player and push to players object.
+
+  const resetDomBoard = (board) => {
+    board.childNodes.forEach((cell, index) => {
+      (index % 2 === 1) ? cell.textContent = "" : null;
+    })
+  };
+
+
+  const displayWinningMessage = (player) => {
+    (player === "Draw") ? console.log("Game Draw") : console.log(`${player} won`);
+  }
+
+
+  // create the player objects and push to playersPlaying dictionary.
   const createPlayers = function(name, marker="null", turn="null") {
     if (Object.keys(playersPlaying).length === 0) {
       player1Turn = (turn === "yes") ? true : false;
@@ -124,22 +145,19 @@ const gameController = (() => {
       playersPlaying["player2"] = player2;
     }
   };
+  
 
-  const resetBoard = (board) => {
-    board.childNodes.forEach((cell, index) => {
-      (index % 2 === 1) ? cell.textContent = "" : null;
-    })
-  };
-
-  const updatePlayerMark = (boardCell, rowPos, colPos, marker) => {
-
+  const putMarkOnBoardCell = (boardCell, rowPos, colPos, marker) => {
+    
     boardCell.textContent = marker;
   };
+
 
   const isCellMarked = function(boardCell) {
     return (boardCell.textContent != "") ? false : true;
   };
 
+  
   const whichPlayerTurn = () => {
     const playerMove = (player1Turn) ? playersPlaying.player1 : playersPlaying.player2;
     player1Turn = !player1Turn;
@@ -158,12 +176,15 @@ const gameController = (() => {
       const playerMoved = whichPlayerTurn();
       const {name, marker} = {...playerMoved};
 
-      updatePlayerMark(e, rowPos, colPos, marker);
+      putMarkOnBoardCell(e, rowPos, colPos, marker);
       gameBoard.updateArray(rowPos, colPos, marker); 
       const winnerMarker = gameBoard.didPlayerWon(marker, +rowPos, +colPos);
 
-      if (winnerMarker != null) {
-        resetBoard(e.parentNode);
+      if (winnerMarker === "Draw") {
+        resetDomBoard(e.parentNode);
+        displayWinningMessage(winnerMarker);
+      } else if (winnerMarker != null) {
+        resetDomBoard(e.parentNode);
         const { stats } = domElements;
         const players = Object.values(playersPlaying);
   
@@ -171,9 +192,11 @@ const gameController = (() => {
           if (player.marker === winnerMarker) {
             updateScore(player);
             displayPlayer(stats.player1Stats, stats.player2Stats);
+            displayWinningMessage(player.name);
             break;
           };
         };
+        player1Turn = !player1Turn;
       }; 
     };
   };
