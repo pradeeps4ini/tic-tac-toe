@@ -16,15 +16,15 @@
     
     <main class="grid">
 
-      <div class="user-details">
+      <div class="player1-details">
         <h2>Hello there, <span>tic-tac-toker!</span></h2>
         <h2>Welcome to the tic-tac-toe world!</h2>
-        <form action="#" class="user-modal">
-          <label for="user-name">Enter your name: </label>
-          <input type="text" id="user-name" name="user-name">
+        <form action="#" class="player1-modal">
+          <label for="player1-name">Enter your name: </label>
+          <input type="text" id="player1-name" name="player1-name">
 
-          <label for="user-mark">Enter your mark: </label>
-          <select id="user-mark" name="user-mark">
+          <label for="player1-mark">Enter your mark: </label>
+          <select id="player1-mark" name="player1-mark">
             <option value="X">X</option>
             <option value="O">O</option>
           </select>
@@ -35,7 +35,7 @@
             <option value="no">No</option>
           </select>
 
-          <button type="button" id="user-submit">Submit</button>
+          <button type="button" id="player1-submit">Submit</button>
         </form>
       </div>
 
@@ -50,6 +50,17 @@
           <input type="text" id="player2-name" name="player2-name">
           <button type="button" class="player2-submit">Submit</button>
         </form>       
+      </div>
+
+      <div class="game-stats hide">
+        <div class="player1-stats">
+          <p class="name"></p>
+          <p class="score"></p>
+        </div>
+        <div class="player2-stats">
+          <p class="name"></p>
+          <p class="score"></p>
+        </div>
       </div>
 
       <div class="board-grid grid hide">
