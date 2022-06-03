@@ -1,7 +1,7 @@
 "use script"
 
 const domElements = (() => {
-  const boardCells = document.querySelector(".board-grid");
+  const board = document.querySelector(".board-grid");
   
   const player1DetailsModal = document.querySelector(".player1-details");
   const player1Name = document.getElementById("player1-name");
@@ -20,12 +20,20 @@ const domElements = (() => {
 
 
   const gameStats = document.querySelector(".game-stats");
+  const playerToMakeMove = document.querySelector(".player-turn");
   const player1Stats = document.querySelector(".player1-stats");
   const player2Stats = document.querySelector(".player2-stats");
+  const stats = {gameStats, player1Stats, player2Stats, playerToMakeMove};
 
-  const stats = {gameStats, player1Stats, player2Stats};
+  const gameReset = document.getElementById("resetGame");
+  
+  const winMessageBox = document.querySelector(".winMessageBox");
+  const playAgainBtn = document.querySelector(".play-again");
+  const noPlayAgainBtn = document.querySelector(".no-play-again");
+  const winMessageElements = { winMessageBox, playAgainBtn, noPlayAgainBtn };
+  
 
-  return { boardCells, player1, player2, stats};
+  return { board, player1, player2, stats, gameReset, winMessageElements };
 })();
 
 
@@ -34,6 +42,7 @@ const Player = function(name, marker, gamesWon=0) {
 }
 
 
+// check if a move is winning move
 const gameBoard = (() => {
   
   const markerArray = [["", "", ""],
@@ -42,98 +51,96 @@ const gameBoard = (() => {
 
   let totalMarker = 0;
 
-  const markerArrayReset = () => {
-    markerArray.forEach((subArray, index) => {
-      subArray.forEach((item, i) => {
-        markerArray[index][i] = "";
-      })
+  const updateMarkerArray = (marker, rowPos, colPos) => {
+    markerArray[rowPos][colPos] = marker;
+    totalMarker += 1;
+  };
+  
+  const resetMarkerArray = () => {
+    markerArray.forEach((subArr, index) => {
+      subArr.forEach((item, i) => markerArray[index][i] = "");
     });
-
     totalMarker = 0;
   };
 
-  const updateArray = (rowIndex, columnIndex, playerMarker) => {
-    markerArray[rowIndex][columnIndex] = playerMarker;
-    totalMarker += 1;
+  const winnerMarker = (playerTotalMarks, marker) => {
+    const totalMarksValue = Object.values(playerTotalMarks);
+    if (totalMarksValue.includes(3)) {
+      resetMarkerArray();
+      return marker
+    } else if (totalMarker === 9) {
+      resetMarkerArray();
+      return "draw";
+    }
   };
 
-  const didPlayerWon = (marker, rowPos, colPos) => {
-    let rowMarks = 0;
-    let colMarks = 0;
-    let diagonalMarks = 0;
-    let reverseDiagonalMarks = 0;
-    
+  const winningMove = (marker, rowPos, colPos) => {
+    const totalMarks = { row: 0, col: 0, diag: 0, reverseDiag: 0 };
+    updateMarkerArray(marker, rowPos, colPos);
     if (totalMarker > 4) {
       for (let i= 0; i< 3; i+= 1) {
-      
-        if (markerArray[rowPos][i] === marker) colMarks += 1;
-
-        if (markerArray[i][colPos] === marker) rowMarks += 1;
+        if (markerArray[i][colPos] === marker) totalMarks.row += 1;
+        
+        if (markerArray[rowPos][i] === marker) totalMarks.col += 1;
 
         if (rowPos === colPos) {
-          if (markerArray[i][i] === marker) diagonalMarks += 1;
-        }
+          if (markerArray[i][i] === marker) totalMarks.diag += 1;
+        };
 
-        if (rowPos + colPos === 2) {
-          if (markerArray[i][(2) - i] === marker) reverseDiagonalMarks += 1;
-        }
+        // 2 = 3 - 1; 3 = boardSize
+        if (+rowPos + +colPos === 2 ) {
+          if (markerArray[i][2 - i] === marker) totalMarks.reverseDiag += 1;  
+        };
       };
-    
-      if (rowMarks === 3 || colMarks === 3 || diagonalMarks === 3 || reverseDiagonalMarks === 3) {
-        markerArrayReset();
-        return marker;
-      } else if (totalMarker === 9) {
-        markerArrayReset();
-        return "Draw";
-      } else {
-        return null;
-      };
+      const whoWon = winnerMarker(totalMarks, marker);
+      return whoWon;
     };
-  };  
-  
-  
-  return { updateArray, didPlayerWon };
+  };
+
+  return { winningMove }
 })();
 
 
+// changing player turns, score, winner message 
 const gameController = (() => {
     
   const playersPlaying = {}; 
   let player1Turn = true;
 
-  
-  // display player name, marker, score on the page
-  const displayPlayer = (player1Div, player2Div) => {
-    const player1 = playersPlaying.player1;
-    const player2 = playersPlaying.player2;
-
-    player1Div.children[0].textContent = `${player1.name} (${player1.marker})`;
-    player1Div.children[1].textContent = `${player1.gamesWon}`;
-
-    player2Div.children[0].textContent = `${player2.name} (${player2.marker})`;
-    player2Div.children[1].textContent = `${player2.gamesWon}`;
-  }
-
-
   const updateScore = (player)  => {
     player.gamesWon += 1;  
   }
-
 
   const resetDomBoard = (board) => {
     board.childNodes.forEach((cell, index) => {
       (index % 2 === 1) ? cell.textContent = "" : null;
     })
   };
+ 
+  const changePlayerTurn = () => {
+    player1Turn = !player1Turn;
+  };
 
+  // display player name, marker, score on the page
 
-  const displayWinningMessage = (player) => {
-    (player === "Draw") ? console.log("Game Draw") : console.log(`${player} won`);
-  }
+  const playerToMove = (playerToMakeMove) => {
+    const player = (player1Turn) ? playersPlaying.player1 : playersPlaying.player2;
+    playerToMakeMove.textContent = `${player.name} (${player.marker}) turn`;
+  };
 
+  const displayPlayerStats = (player1Stats, player2Stats) => {
+    const player1 = playersPlaying.player1;
+    const player2 = playersPlaying.player2;
+
+    player1Stats.children[0].textContent = `${player1.name} (${player1.marker})`;
+    player1Stats.children[1].textContent = `${player1.gamesWon}`;
+
+    player2Stats.children[0].textContent = `${player2.name} (${player2.marker})`;
+    player2Stats.children[1].textContent = `${player2.gamesWon}`;
+  };
 
   // create the player objects and push to playersPlaying dictionary.
-  const createPlayers = function(name, marker="null", turn="null") {
+  const createPlayers = function(name="Human", marker="null", turn="null") {
     if (Object.keys(playersPlaying).length === 0) {
       player1Turn = (turn === "yes") ? true : false;
       const player1 = Player(name, marker);
@@ -148,78 +155,102 @@ const gameController = (() => {
   
 
   const putMarkOnBoardCell = (boardCell, rowPos, colPos, marker) => {
-    
     boardCell.textContent = marker;
   };
 
 
-  const isCellMarked = function(boardCell) {
+  const isCellMarked = (boardCell) => {
     return (boardCell.textContent != "") ? false : true;
   };
 
   
   const whichPlayerTurn = () => {
     const playerMove = (player1Turn) ? playersPlaying.player1 : playersPlaying.player2;
-    player1Turn = !player1Turn;
-
+    changePlayerTurn();
+   
     return playerMove;
   }; 
 
+
+  const hideBoard = (boardCell) => {
+    boardCell.parentNode.classList.toggle("hide");
+  };
+
+  const displayScore = (messageBox) => {
+    messageBox.children[1].textContent = `${playersPlaying.player1.name} won ${playersPlaying.player1.gamesWon}`;
+    messageBox.children[2].textContent = `${playersPlaying.player2.name} won ${playersPlaying.player2.gamesWon}`;
+  };
+
+  const displayDrawMessage = (messageBox) => {
+    messageBox.children[0].textContent = "This round is draw!" 
+  };  
+
+  const displayWinnerMessage = (messageBox, player) => {
+    messageBox.children[0].textContent = `${player.name} won this round!`;
+  };
+
+  const displayGameResult = (boardCell, gameDecision, player, winMessageBox) => {
+    resetDomBoard(boardCell.parentNode);
+    winMessageBox.classList.toggle("hide");
+    if (gameDecision === "draw") {
+      displayDrawMessage(winMessageBox);
+      displayScore(winMessageBox);
+    } else {
+      updateScore(player);
+      displayWinnerMessage(winMessageBox, player);
+      displayScore(winMessageBox);
+    }
+    hideBoard(boardCell);
+    changePlayerTurn();
+  };
+
   const makeMove = () => {
-    const e = event.target;
-    const boardCell = e.classList[0];
-    const [rowPos, colPos] = [...boardCell.split("")];
+    const boardCell = event.target;
+    const cellCoordinates = boardCell.classList[0];
+    const [rowPos, colPos] = [...cellCoordinates];
+    const cellMarkedOrNot = isCellMarked(boardCell);
 
-    const cellMarked = isCellMarked(e);
+    if (cellMarkedOrNot) {
+      const { stats, winMessageElements } = {...domElements};
+      const { playerToMakeMove } = {...stats};
+      const player = whichPlayerTurn();
+      const { name, marker } = { ...player };
+      playerToMove(playerToMakeMove);
 
-    if (cellMarked) {
-      const playerMoved = whichPlayerTurn();
-      const {name, marker} = {...playerMoved};
+      putMarkOnBoardCell(boardCell, rowPos, colPos, marker);
+      const gameDecision = gameBoard.winningMove(marker, rowPos, colPos);
+      if (gameDecision != undefined) {
+        const { player1Stats, player2Stats } = {...stats};
+        const { winMessageBox } = {...winMessageElements};
 
-      putMarkOnBoardCell(e, rowPos, colPos, marker);
-      gameBoard.updateArray(rowPos, colPos, marker); 
-      const winnerMarker = gameBoard.didPlayerWon(marker, +rowPos, +colPos);
-
-      if (winnerMarker === "Draw") {
-        resetDomBoard(e.parentNode);
-        displayWinningMessage(winnerMarker);
-      } else if (winnerMarker != null) {
-        resetDomBoard(e.parentNode);
-        const { stats } = domElements;
-        const players = Object.values(playersPlaying);
-  
-        for (let player of players) {
-          if (player.marker === winnerMarker) {
-            updateScore(player);
-            displayPlayer(stats.player1Stats, stats.player2Stats);
-            displayWinningMessage(player.name);
-            break;
-          };
-        };
-        player1Turn = !player1Turn;
-      }; 
+        displayGameResult(boardCell, gameDecision, player, winMessageBox)
+        displayPlayerStats(player1Stats, player2Stats);      
+        playerToMove(playerToMakeMove);
+      };
     };
   };
 
-  return { makeMove, createPlayers, displayPlayer };
+  return { playerToMove, makeMove, createPlayers, displayPlayerStats };
 
 })();
 
 
 const domInteractions = (() => {
   
-  const { boardCells, player1, player2, stats } = domElements;
-  const { makeMove, createPlayers, displayPlayer } = gameController;
+  const { board, player1, player2, stats, gameReset, winMessageElements } = domElements;
+  const { playerToMove, makeMove, createPlayers, displayPlayerStats } = gameController;
  
-  const { player1DetailsModal, player1FormSubmit, player1Name, player1Mark, player1Turn } = {...player1};
-  const { player2Modal, player2Form, player2NameSubmit, player2Bot, player2Name } = {...player2};
-  const {gameStats, player1Stats, player2Stats} = {...stats};
+  const { player1DetailsModal, player1FormSubmit, player1Name, player1Mark, player1Turn } = { ...player1 };
+  const { player2Modal, player2Form, player2NameSubmit, player2Bot, player2Name } = { ...player2 };
+  const { gameStats, player1Stats, player2Stats, playerToMakeMove } = { ...stats };
+  const { winMessageBox, playAgainBtn, noPlayAgainBtn } = { ...winMessageElements }; 
 
   const hidePlayer2Form = () => {
     player2Modal.classList.toggle("hide");
-    boardCells.classList.toggle("hide");
+    board.classList.toggle("hide");
     gameStats.classList.toggle("hide");
-    displayPlayer(player1Stats, player2Stats);
+    displayPlayerStats(player1Stats, player2Stats);
+    playerToMove(playerToMakeMove);
   };
    
   player1FormSubmit.addEventListener("click", () => {
@@ -243,9 +274,17 @@ const domInteractions = (() => {
   });
 
   
-  const cells = boardCells.childNodes;
+  const cells = board.childNodes;
   cells.forEach((cell, index) => {
     (index % 2 === 1) ? cell.addEventListener("click", makeMove) : null;
   });
+
+   gameReset.addEventListener("click", () => window.location.reload());
+
+   noPlayAgainBtn.addEventListener("click", () => window.close());
+   playAgainBtn.addEventListener("click", () => {
+     winMessageBox.classList.add("hide");
+     board.classList.toggle("hide");
+   });
 
 })();
