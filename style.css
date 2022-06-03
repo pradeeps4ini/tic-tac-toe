@@ -38,7 +38,7 @@ body {
 }
 
 .hide {
-  display: none;
+  display: none !important;
 }
 
 
@@ -105,6 +105,33 @@ main {
   border-bottom: 1px solid var(--clr-board-border);
 }
 
+
+/* winning message */
+
+.winMessageBox {
+  position: absolute;
+  top: 0;
+  left: 0;
+  block-size: 100%;
+  inline-size: 100%;
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 2rem;
+  justify-content: center;
+  align-items: center;
+  font-size: calc(var(--font-size) * 1.6);
+  background-color: var(--clr-cross);
+}
+
+.buttons {
+  display: flex;
+  gap: 3rem;
+}
+
+.buttons > * {
+  inline-size: calc(7vw + 5rem);
+  padding: 1rem 0; 
+}
 
 /* Footer */
 
