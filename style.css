@@ -9,7 +9,7 @@
 :root {
  
   --font-size: 10px;
-  --font-clr: ;
+  --font-clr: hsl(0, 0%, 43.5%) ;
     
   --primary-bg: hsl(240, 1.3%, 56.3%);
 
@@ -24,10 +24,10 @@
 
 html {
   font-size: var(--font-size);
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 body {
-  background-color: hsl(240, 1.3%, 56.3%);
 }
 
 
@@ -41,6 +41,10 @@ body {
   display: none !important;
 }
 
+h2 {
+  font-size: clamp(20px, calc(2.5vw + 1rem), 30px);
+}
+
 
 /* site layout */
 
@@ -50,13 +54,6 @@ body {
                  "board" 5fr 
                  "footer" 0.5fr 
                  / 1fr;
-  gap: 1rem;
-}
-
-header, 
-main,
-footer {
-  background-color: white;
 }
 
 
@@ -66,19 +63,18 @@ header {
   place-items: center;
 }
 
-
-/* user details modal  */
-
-.user-details{
-  
+h1 {
+  color: var(--font-clr);
+  font-size: clamp(25px, calc(05vw + 1rem), 40px);
 }
 
 
-/* tic tac toe board  */
+/* tic tac board, form modals, player stats  */
  
 main {
   border: 4px solid var(--clr-zero-border);
   grid-area: board;
+  grid-template-rows: 3fr 3fr 1fr / 1fr;
 }
 
 .board-grid {
@@ -89,22 +85,30 @@ main {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  font-size: clamp(20px, calc(10% + 1rem), 50px);
 }
 
+
 .all-border {
-  border: 1px solid var(--clr-board-border);
+  border: 3px solid var(--clr-board-border);
 }
 
 .left-right-border {
-  border-left: 1px solid var(--clr-board-border);
-  border-right: 1px solid var(--clr-board-border);
+  border-left: 3px solid var(--clr-board-border);
+  border-right: 3px solid var(--clr-board-border);
 }
 
 .top-bottom-border {
-  border-top: 1px solid var(--clr-board-border);
-  border-bottom: 1px solid var(--clr-board-border);
+  border-top: 3px solid var(--clr-board-border);
+  border-bottom: 3px solid var(--clr-board-border);
 }
 
+
+/* player1 form  */
+
+.player1-details {
+  grid-area: 1 / 1 / 3 / 1;    
+}
 
 /* winning message */
 
