@@ -120,7 +120,6 @@ main {
 select {
   background: transparent;
   text-align: center;
-  font-weight: bold;
 }
 
 label {
@@ -130,7 +129,7 @@ label {
 
 input,
 select {
-  font-size: 20px;
+  font-size: 18px;
   block-size: 4rem;
   inline-size: clamp(13rem, calc(12vw + 07rem), 25rem);
   padding-left: 5px;
@@ -234,7 +233,10 @@ select {
 }
 
 .board-grid  > div {
-  transition: 0.5s ease-in-out;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.2s ease-in-out;
 }
 
 .board-grid > div:hover {
@@ -275,7 +277,12 @@ select {
   background-color: hsl(146.2, 52.4%, 79.4%);
 }
 
+.winMessageBox > p:nth-child(n + 2):nth-child(-n + 3) {
+  color: hsl(202.5, 80%, 96.1%);
+}
+
 .buttons {
+  margin-block-start: 2rem;
   display: flex;
   gap: 3rem;
 }
