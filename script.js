@@ -259,7 +259,7 @@ const ai = (() => {
   const aiMakeMove = (board) => {
     setTimeout(() => {
       botMakeMove(board);   
-    }, 500);
+    }, 250);
   };
 
   return { aiMakeMove };
@@ -335,7 +335,7 @@ const boardController = (() => {
         boardState.resetMarkerArray(3);
         setTimeout(() => {
           declareWinner(winner, player, boardCell.parentNode)
-        }, 500);
+        }, 250);
       };
       players.changePlayerTurn();
       gameStats.displayPlayerMakingMove();
