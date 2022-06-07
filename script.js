@@ -2,7 +2,7 @@
 
 const domElements = (() => {
   const board = document.querySelector(".board-grid");
-  
+  const main = document.querySelector("main");  
   const player1DetailsForm = document.querySelector(".player1-details");
   const player1Name = document.getElementById("player1-name");
   const player1Mark = document.getElementById("player1-mark");
@@ -36,7 +36,7 @@ const domElements = (() => {
   const winMessageElements = { winMessageBox, playAgainBtn, noPlayAgainBtn };
   
 
-  return { board, player1, player2, stats, reset, winMessageElements };
+  return { board, main, player1, player2, stats, reset, winMessageElements };
 })();
 
 
@@ -352,7 +352,7 @@ const boardController = (() => {
 
 const domInteractions = (() => {
   
-  const { board, player1, player2, stats, reset, winMessageElements } = { ...domElements };
+  const { board, main, player1, player2, stats, reset, winMessageElements } = { ...domElements };
   const { winMessageBox, playAgainBtn, noPlayAgainBtn } = { ...winMessageElements };
 
   // player information
@@ -424,6 +424,16 @@ const domInteractions = (() => {
     resetBoard();
     boardState.resetMarkerArray(3);
     gameStats.displayPlayerStats(stats.player1Stats, stats.player2Stats);
+  });
+
+  noPlayAgainBtn.addEventListener("click", () => {
+    winMessageBox.classList.toggle("hide");
+    reset.resetGame.classList.toggle("hide");
+    stats.gameStats.classList.toggle("hide"); 
+    main.textContent = "Thank you for playing!"
+    main.style.fontSize = "30px";
+    main.style.textAlign = "center";
+    main.style.marginTop = "100px";
   });
 
   // tic tac toe board cell
