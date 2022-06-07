@@ -210,9 +210,15 @@ select {
   margin-block-end: 1rem;
 }
 
+.player1-stats,
+.player2-stats {
+  gap: 1rem;
+}
+
 .player-turn p {
   font-size: clamp(1.5rem, calc(1vw + 1rem), 2.5rem); 
 }
+
   /* board  */
 
 .board-grid {
@@ -266,7 +272,7 @@ select {
   justify-content: center;
   align-items: center;
   font-size: calc(var(--font-size) * 1.6);
-  background-color: var(--clr-cross);
+  background-color: hsl(146.2, 52.4%, 79.4%);
 }
 
 .buttons {
