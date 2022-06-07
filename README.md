@@ -10,15 +10,15 @@ Play against your friends or challenge an AI.
 * Score tracker
 * Responsive design
 
-### Lessons learned
+## Lessons learned
 * Making site responsive for both mobiles and desktops.
 * IFFE modular pattern
 
-#### Features to add
+## Features to add
 * Making ai more robust with minimax algorithm.
 * Saving game state and player information inside local storage.
 
-##### Contribution guide
+## Contribution guide
 Read the code and if you want to add some features or improve existing features. Send a pull request with changes. 
 
 
