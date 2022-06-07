@@ -63,6 +63,10 @@ button {
   text-decoration: none;
 }
 
+button:hover {
+  transform: translateY(-2px) translateX(2px);
+}
+
 p {
   font-size: clamp(2rem, calc(2vw + 1rem), 3.5rem); 
 }
@@ -143,12 +147,6 @@ select {
   justify-content: center;
 }
 
-.submit:hover {
-  transform: scale(1.1);
-  background: var(--clr-btn);
-  color: white;
-}
-
 
 /* player2 infomation form  */
 .player2-info {
@@ -173,11 +171,13 @@ select {
 .humanBtn {
   background: aliceblue;
   color: var(--clr-cross);
+  inline-size: 14rem;
 }
 
 .botBtn {
   background-color: hsl(48.6, 63.6%, 93.5%);
   color: var(--clr-zero);
+  inline-size: 14rem;
 }
 
 .player2-form {
@@ -292,6 +292,15 @@ select {
   padding: 1rem 0; 
 }
 
+.play-again {
+  color: var(--clr-cross-border);
+  background-color: hsl(48.6, 63.6%, 93.5%);
+}
+
+.no-play-again {
+  color: hsl(51.8, 64.8%, 55.5%);
+  background-color: hsl(208, 100%, 97.1%);
+}
 /* Footer */
 
 footer {
