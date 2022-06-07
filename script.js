@@ -192,7 +192,7 @@ const gameStats = (() => {
     const player = players.getPlayerTurn();
     console.log(player, ++a)
     
-    playerToMakeMove.textContent = `${player.name} (${player.marker}) turn`;
+    playerToMakeMove.children[0].textContent = `${player.name} (${player.marker}) turn`;
   };
 
 
@@ -200,11 +200,11 @@ const gameStats = (() => {
     const player1 = players.getPlayers(0);
     const player2 = players.getPlayers(1);
 
-    player1Stats.children[0].textContent = `${player1.name} (${player1.marker})`;
-    player1Stats.children[1].textContent = `     ${player1.gamesWon}`;
+    player1Stats.children[0].textContent = player1.name;
+    player1Stats.children[1].textContent = player1.gamesWon;
 
-    player2Stats.children[0].textContent = `${player2.name} (${player2.marker})`;
-    player2Stats.children[1].textContent = `     ${player2.gamesWon}`;
+    player2Stats.children[0].textContent = player2.name;
+    player2Stats.children[1].textContent = player2.gamesWon;
   }; 
 
   return { displayPlayerMakingMove, displayPlayerStats };
