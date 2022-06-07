@@ -40,14 +40,6 @@ const domElements = (() => {
 })();
 
 
-/* creating player objects
- *
- *@param name: name of the player
- *@param marker: marker of the player. Either O or X.
- *@param gamesWon: games won by the marker
- *
- * return an object with { name, marker, gamesWon }
- */
 const players = (() => {
 
   let playersPlaying = {};
@@ -194,10 +186,12 @@ const boardState = (() => {
 
 
 const gameStats = (() => {
-
+  let a = 1;
   const displayPlayerMakingMove = () => {
     const { playerToMakeMove } = { ...domElements.stats };
     const player = players.getPlayerTurn();
+    console.log(player, ++a)
+    
     playerToMakeMove.textContent = `${player.name} (${player.marker}) turn`;
   };
 
@@ -233,14 +227,12 @@ const ai = (() => {
   };
 
  
-  const aiMakeMove = (board) => {
+  const makeMove = (board) => {
     const aiPlayer = players.getPlayers(1);
     const cellToMark = aiCellCoordinates();
     const boardCells = [...board.children]
     const cell = cellToMark[0].toString() + cellToMark[1].toString();
     const [rowPos, colPos] = [...cellToMark];
-    console.log(aiPlayer.marker);
-    gameStats.displayPlayerMakingMove();
 
     boardCells.forEach((item) => {
       if (item.classList[0] === cell) item.textContent = aiPlayer.marker; 
@@ -258,6 +250,14 @@ const ai = (() => {
     }
     
     players.changePlayerTurn();
+    gameStats.displayPlayerMakingMove();
+
+  };
+
+  const aiMakeMove = (board) => {
+    setTimeout(() => {
+      makeMove(board);   
+    }, 500);
   };
 
   return { aiMakeMove }
@@ -326,18 +326,17 @@ const boardController = (() => {
     const player = whichPlayerTurn();
     const isNotMarked = isCellMarked(rowPos, colPos);
   
-    gameStats.displayPlayerMakingMove();
-
+    console.log({player}, "1st iteration")
     if (isNotMarked) {
       const winner = actionsAfterValidMove(rowPos, colPos, boardCell, player.marker);
-      console.log({winner});
+      console.log(winner);
       if (winner == "draw" || winner === player.marker) {
         players.changePlayerTurn();
         declareWinner(winner, player, boardCell.parentNode);
       }
-      
       players.changePlayerTurn();
-      
+      gameStats.displayPlayerMakingMove();
+
       if (winner === null) {
         if (players.getPlayers(1).name === "bot") ai.aiMakeMove(boardCell.parentNode);
       };
@@ -365,7 +364,6 @@ const domInteractions = (() => {
     stats.gameStats.classList.toggle("hide");  
     reset.resetGame.classList.toggle("hide");
     gameStats.displayPlayerStats(stats.player1Stats, stats.player2Stats);
-    gameStats.displayPlayerMakingMove();
   }
 
   
@@ -390,6 +388,7 @@ const domInteractions = (() => {
     const name = player2Name.value;
     players.setPlayers(name);
     toggleBoard();
+    gameStats.displayPlayerMakingMove();
   }); 
   
   player1FormSubmit.addEventListener("click", () => {
@@ -401,7 +400,6 @@ const domInteractions = (() => {
     const turnTrue = (turn === "no") ? false : true;
     
     players.setPlayers(name, mark, turnTrue);    
-    gameStats.displayPlayerMakingMove();
   });
 
   reset.resetGameBtn.addEventListener("click", () => {
@@ -421,6 +419,7 @@ const domInteractions = (() => {
     board.classList.toggle("hide");
     resetBoard();
     boardState.resetMarkerArray(3);
+    gameStats.displayPlayerStats(stats.player1Stats, stats.player2Stats);
   });
 
   // tic tac toe board cell
