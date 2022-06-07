@@ -147,10 +147,8 @@ const boardState = (() => {
   const winnerMarker = (playerTotalMarks, marker) => {
     const totalMarksValue = Object.values(playerTotalMarks);
     if (totalMarksValue.includes(3)) {
-      resetMarkerArray(3);
       return marker
     } else if (totalTurns === 9) {
-      resetMarkerArray(3);
       return "draw";
     } else {
       return null;
@@ -160,6 +158,7 @@ const boardState = (() => {
 
   const winningMove = (rowPos, colPos, marker) => {
     const totalMarks = { row: 0, col: 0, diag: 0, reverseDiag: 0 };
+    
     if (totalTurns > 4) {
       for (let i= 0; i< 3; i+= 1) {
         if (boardMarkerArray[i][colPos] === marker) totalMarks.row += 1;
@@ -170,14 +169,15 @@ const boardState = (() => {
           if (boardMarkerArray[i][i] === marker) totalMarks.diag += 1;
         };  
 
-        // 2 = 3 - 1; 3 = boardSize
+      // 2 = 3 - 1; 3 = boardSize
         if (+rowPos + +colPos === 2 ) { 
           if (boardMarkerArray[i][2 - i] === marker) totalMarks.reverseDiag += 1;  
         };  
-      };  
+      };
     };
     const win = winnerMarker(totalMarks, marker);
-    return win;  
+    return win;
+   
   };
 
   resetMarkerArray(3);
@@ -185,12 +185,11 @@ const boardState = (() => {
 })();
 
 
+
 const gameStats = (() => {
-  let a = 1;
   const displayPlayerMakingMove = () => {
     const { playerToMakeMove } = { ...domElements.stats };
     const player = players.getPlayerTurn();
-    console.log(player, ++a)
     
     playerToMakeMove.children[0].textContent = `${player.name} (${player.marker}) turn`;
   };
@@ -214,10 +213,10 @@ const gameStats = (() => {
 
 // ai methods and move finder
 const ai = (() => {
+  
 
   const aiMove = (emptyCells) => {
-    const move = parseInt(Math.random() * emptyCells.length);
-    return emptyCells[move];
+    const randomMove = parseInt(Math.random() * emptyCells.length);    return emptyCells[randomMove];    
   };
 
 
@@ -227,7 +226,7 @@ const ai = (() => {
   };
 
  
-  const makeMove = (board) => {
+  const botMakeMove = (board) => {
     const aiPlayer = players.getPlayers(1);
     const cellToMark = aiCellCoordinates();
     const boardCells = [...board.children]
@@ -244,8 +243,10 @@ const ai = (() => {
     
     if (winningMove === aiPlayer.marker) { 
       players.updateGameScore(aiPlayer.marker);
+      boardState.resetMarkerArray(3);
       boardController.declareWinner(winningMove, aiPlayer, board); 
     } else if (winningMove === "draw") {
+      boardState.resetMarkerArray(3);
       boardController.declareWinner(winningMove, aiPlayer, board);
     }
     
@@ -254,13 +255,14 @@ const ai = (() => {
 
   };
 
+
   const aiMakeMove = (board) => {
     setTimeout(() => {
-      makeMove(board);   
+      botMakeMove(board);   
     }, 500);
   };
 
-  return { aiMakeMove }
+  return { aiMakeMove };
 })();
 
 
@@ -321,19 +323,20 @@ const boardController = (() => {
 
 
   const makeMove = () => {
-    let boardCell = event.target;     
+    const boardCell = event.target;
     const { rowPos, colPos } = extractCellCoordinates(boardCell);
     const player = whichPlayerTurn();
     const isNotMarked = isCellMarked(rowPos, colPos);
   
-    console.log({player}, "1st iteration")
     if (isNotMarked) {
       const winner = actionsAfterValidMove(rowPos, colPos, boardCell, player.marker);
-      console.log(winner);
       if (winner == "draw" || winner === player.marker) {
         players.changePlayerTurn();
-        declareWinner(winner, player, boardCell.parentNode);
-      }
+        boardState.resetMarkerArray(3);
+        setTimeout(() => {
+          declareWinner(winner, player, boardCell.parentNode)
+        }, 500);
+      };
       players.changePlayerTurn();
       gameStats.displayPlayerMakingMove();
 
@@ -343,7 +346,6 @@ const boardController = (() => {
     };
   };
 
-  
   return { makeMove, declareWinner };
 })();
 
@@ -355,7 +357,7 @@ const domInteractions = (() => {
 
   // player information
   const { player1DetailsForm, player1FormSubmit, player1Name, player1Mark, player1Turn } = { ...player1 };
-  const { player2Info, player2HumanBtn, player2BotBtn, player2Form, player2Name, player2NameSubmit, choseAiOrHuman } = { ...player2 };
+  const {  player2Info, player2HumanBtn, player2BotBtn, player2Form, player2Name, player2NameSubmit, choseAiOrHuman } = { ...player2 };
 
   // display tic tac toe board
   const toggleBoard = () => {
@@ -385,6 +387,7 @@ const domInteractions = (() => {
   });
 
   player2NameSubmit.addEventListener("click", () => {
+    player2Form.classList.toggle("hide");
     const name = player2Name.value;
     players.setPlayers(name);
     toggleBoard();
@@ -404,6 +407,7 @@ const domInteractions = (() => {
 
   reset.resetGameBtn.addEventListener("click", () => {
     board.classList.toggle("hide");
+    choseAiOrHuman.classList.toggle("hide");
     player1DetailsForm.classList.toggle("hide");
     stats.gameStats.classList.toggle("hide");
     reset.resetGame.classList.toggle("hide");
